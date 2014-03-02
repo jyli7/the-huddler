@@ -17,7 +17,12 @@ class Yelp
 
 	def nyc_restaurants
 		path = "/v2/search?term=restaurants&location=new%20york"
-		p access_token.get(path).body
+		@access_token.get(path).body
+	end
+
+	def restaurant(id)
+		path = "/v2/business/#{id}"
+		@access_token.get(path).body
 	end
 	
 end
