@@ -10,12 +10,12 @@ class Yelp
 	attr_accessor :access_token
 
 	def initialize
-		consumer = OAuth::Consumer.new(CONSUMER_KEY, CONSUMER_SECRET, {:site => "#{api_host}"})
+		consumer = OAuth::Consumer.new(CONSUMER_KEY, CONSUMER_SECRET, {:site => "#{API_HOST}"})
 		@access_token = OAuth::AccessToken.new(consumer, TOKEN, TOKEN_SECRET)
 
 	end
 
-	def restaurants
+	def nyc_restaurants
 		path = "/v2/search?term=restaurants&location=new%20york"
 		p access_token.get(path).body
 	end
