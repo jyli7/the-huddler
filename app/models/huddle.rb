@@ -12,8 +12,8 @@ class Huddle
     if !self.invited_emails.include?(email)
       self.add_token
       self.invited_emails.push(email)
+      UserMailer.email_invite(email, self, self.invited_tokens.last).deliver
       self.save!
-      # Email person here, with token
     end
   end
 
