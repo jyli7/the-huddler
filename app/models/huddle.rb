@@ -1,7 +1,7 @@
 class Huddle
   include Mongoid::Document
 
-  field :invite_tokens,        type: Array, default: []
+  field :invite_tokens,         type: Array, default: []
   field :exhausted_tokens,      type: Array, default: []
   field :invited_emails,        type: Array, default: []
   field :creator_email,         type: String
@@ -23,6 +23,10 @@ class Huddle
     UserMailer.email_invite(email, self, self.invite_token_for(email)).deliver
   end
 
+  def email_completion_notice(email)
+    UserMailer.email_completion_notice(email, self, self.invite_token_for(email)).deliver
+  end
+
   def add_token_for(email)
     self.invite_tokens ||= []
     self.invite_tokens.push(generate_invite_token_for(email))
@@ -35,7 +39,9 @@ class Huddle
 
   def exhaust_token(token)
   	self.exhausted_tokens ||= []
-  	self.exhausted_tokens.push(token)
+    unless exhausted_this_token?(token)
+      self.exhausted_tokens.push(token)
+    end
   end
 
   def exhaust_token!(token)
@@ -47,7 +53,7 @@ class Huddle
   	self.invite_tokens.include?(token)
   end
 
-  def token_exhausted?(token)
+  def exhausted_this_token?(token)
   	self.exhausted_tokens.include?(token)
   end
 
@@ -67,15 +73,24 @@ class Huddle
   end
 
   def alert_all_voters
+    self.invited_emails.each do |email|
+      self.email_completion_notice(email)
+    end
+  end
 
+  def completed?
+    invite_tokens.length > 0 && exhausted_tokens.length > 0 &&
+    outstanding_invitees == 0
+  end
+
+  def outstanding_invitees
+    invite_tokens.length - exhausted_tokens.length
   end
 
   protected
 
     def huddle_just_completed?
-      invite_tokens.length > 0 && exhausted_tokens.length > 0 &&
-      invite_tokens.length == exhausted_tokens.length &&
-      exhausted_tokens.changed?
+      completed? && exhausted_tokens_changed?
     end
 
     def invite_creator

@@ -10,6 +10,7 @@ TheHuddler::Application.routes.draw do
   		put :add_restaurant
   		get :invite_voters
   		put :invite_voter
+      get :voting_results
   	end
   end
 end

@@ -7,4 +7,8 @@ class ApplicationController < ActionController::Base
     redirect_to root_path, :alert => exception.message
   end
 
+  def authorization_failure_redirect
+		redirect_to root_path
+	end
+
 end

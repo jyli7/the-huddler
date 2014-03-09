@@ -1,5 +1,12 @@
 <h3>Vote Results</h3>
 
+<% if @huddle.completed? %>
+	<p>HUDDLE IS OVER!</p>
+<% else %>
+	<p>HUDDLE IS NOT YET OVER!</p>
+	<p><%= @huddle.outstanding_invitees %> people left to vote</p>
+<% end %>
+
 <% @sorted_nominations.each do |nom| %>
 	<div class="nom-name"><%= nom.name %></div>
 	<div class="nom-score"><%= nom.total_score %></div>

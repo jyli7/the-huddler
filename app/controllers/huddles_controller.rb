@@ -1,5 +1,5 @@
 class HuddlesController < ApplicationController
-	before_filter :find_huddle, only: [:edit, :add_restaurant, :vote_page, :submit_vote, :invite_voter, :invite_voters]
+	before_filter :find_huddle, except: [:create]
 
   def create
   	@huddle = Huddle.create(creator_email: params[:creator_email])
@@ -7,7 +7,6 @@ class HuddlesController < ApplicationController
   end
 
   def edit
-  	@huddle = Huddle.find(params[:id])
   end
 
   def add_restaurant
@@ -49,11 +48,11 @@ class HuddlesController < ApplicationController
   def vote_page
     if !params[:invite_token] || !@huddle.invited_this_token?(params[:invite_token])
       flash[:error] = "You were not invited to this huddle"
-      redirect_to root_path
+      authorization_failure_redirect
     elsif @huddle.invited_this_token?(params[:invite_token]) and
-          @huddle.token_exhausted?(params[:invite_token])
+          @huddle.exhausted_this_token?(params[:invite_token])
       flash[:error] = "You already voted in this huddle"
-      redirect_to root_path
+      authorization_failure_redirect
     else
       render 'vote_page'
     end
@@ -61,8 +60,16 @@ class HuddlesController < ApplicationController
 
   def submit_vote
     @huddle.submit_votes!(params[:invite_token], params[:votes])
-    @sorted_nominations = @huddle.nominations.order_by(:total_score.desc)
-    render 'voting_results'
+    redirect_to voting_results_huddle_path(@huddle, invite_token: params[:invite_token])
+  end
+
+  def voting_results
+    if @huddle.invite_tokens.include?(params[:invite_token])
+      @sorted_nominations = @huddle.nominations.order_by(:total_score.desc)
+    else
+      flash[:error] = "You were not invited to this huddle."
+      authorization_failure_redirect
+    end
   end
 
   private
