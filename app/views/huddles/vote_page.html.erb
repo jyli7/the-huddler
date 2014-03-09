@@ -2,13 +2,13 @@
 	<%= hidden_field_tag "invite_token", params[:invite_token] %>
 	<% @huddle.nominations.each do |nom| %>
 		<div class="nom-name"><%= nom.name %></div>
-		<%= label_tag "votes_#{nom.id}_1".to_sym, "Bad" %>
+		<%= label_tag "votes_#{nom.id}_1".to_sym, "Bad", class: "inline-label" %>
 		<%= radio_button_tag("votes[#{nom.id}]", 1) %>
 
-		<%= label_tag "votes_#{nom.id}_2".to_sym, "Okay" %>
+		<%= label_tag "votes_#{nom.id}_2".to_sym, "Okay", class: "inline-label" %>
 		<%= radio_button_tag("votes[#{nom.id}]", 2) %>
 
-		<%= label_tag "votes_#{nom.id}_3".to_sym, "Great" %>
+		<%= label_tag "votes_#{nom.id}_3".to_sym, "Great", class: "inline-label" %>
 		<%= radio_button_tag("votes[#{nom.id}]", 3) %>
 	<% end %>
 	<%= submit_tag 'Vote' %>
