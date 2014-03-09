@@ -1,11 +1,14 @@
 class Huddle
   include Mongoid::Document
 
-  field :invited_tokens, type: Array, default: []
-  field :invited_emails, type: Array, default: []
-  field :exhausted_tokens, type: Array, default: []
+  field :invited_tokens,        type: Array, default: []
+  field :creator_invite_token,  type: String
+  field :invited_emails,        type: Array, default: []
+  field :exhausted_tokens,       type: Array, default: []
 
   embeds_many :nominations
+
+  before_create :set_creator_invite_token
 
   def invite_this_email!(email)
     self.invited_emails ||= []
@@ -57,6 +60,12 @@ class Huddle
   end
 
   protected
+
+    def set_creator_invite_token
+      self.creator_invite_token = generate_invite_token
+      self.invited_tokens ||= []
+      self.invited_tokens.push(self.creator_invite_token)
+    end
 
   	def generate_invite_token
 	  	token = loop do

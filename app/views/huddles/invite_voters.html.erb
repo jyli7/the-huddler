@@ -1,10 +1,13 @@
 <%= form_tag(invite_voter_huddle_path(@huddle), method: :put) do %>
-	<%= text_field_tag 'invitee_email' %>
+	<%= text_field_tag 'invitee_email', '', placeholder: "Enter an email" %>
 	<%= submit_tag 'Invite' %>
 <% end %>
 
-<% @huddle.invited_emails.each do |email| %>
-	<div class="invited-email"><%= email %></div>
+<% if @huddle.invited_emails and @huddle.invited_emails.length > 0 %>
+	<h3>Emails already invited:</h3>
+	<% @huddle.invited_emails.each do |email| %>
+		<div class="invited-email"><%= email %></div>
+	<% end %>
 <% end %>
 
-<%= link_to "Done Inviting Users", vote_page_huddle_path(@huddle) %>
+<%= link_to "Done Inviting Users", vote_page_huddle_path(@huddle, invite_token: @huddle.creator_invite_token) %>
