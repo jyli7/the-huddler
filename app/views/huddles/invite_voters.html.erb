@@ -3,7 +3,7 @@
 	<%= submit_tag 'Invite' %>
 <% end %>
 
-<% @huddle.invited_tokens.each do |email| %>
+<% @huddle.invited_emails.each do |email| %>
 	<div class="invited-email"><%= email %></div>
 <% end %>
 

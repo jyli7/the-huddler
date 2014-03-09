@@ -2,13 +2,19 @@ class Huddle
   include Mongoid::Document
 
   field :invited_tokens, type: Array, default: []
-  field :voted_tokens, type: Array, default: []
+  field :invited_emails, type: Array, default: []
+  field :exhausted_tokens, type: Array, default: []
 
   embeds_many :nominations
 
   def invite_this_email!(email)
-  	self.add_token!
-  	# Email person here, with token
+    self.invited_emails ||= []
+    if !self.invited_emails.include?(email)
+      self.add_token
+      self.invited_emails.push(email)
+      self.save!
+      # Email person here, with token
+    end
   end
 
   def add_token
@@ -22,8 +28,8 @@ class Huddle
 	end
 
   def exhaust_token(token)
-  	self.voted_tokens ||= []
-  	self.voted_tokens.push(token)
+  	self.exhausted_tokens ||= []
+  	self.exhausted_tokens.push(token)
   end
 
   def exhaust_token!(token)
@@ -36,7 +42,7 @@ class Huddle
   end
 
   def token_exhausted?(token)
-  	self.voted_tokens.include?(token)
+  	self.exhausted_tokens.include?(token)
   end
 
   def submit_votes!(invite_token, votes_hash)
