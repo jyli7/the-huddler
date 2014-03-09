@@ -73,14 +73,15 @@ class Huddle
   protected
 
     def huddle_just_completed?
-      invite_tokens > 0 && exhausted_tokens > 0 &&
+      invite_tokens.length > 0 && exhausted_tokens.length > 0 &&
       invite_tokens.length == exhausted_tokens.length &&
       exhausted_tokens.changed?
     end
 
     def invite_creator
-      self.add_to_invited_emails!(self.creator_email)
-      set_creator_invite_token
+      self.add_to_invited_emails(self.creator_email)
+      self.set_creator_invite_token
+      self.save!
     end
 
     def set_creator_invite_token
@@ -94,6 +95,6 @@ class Huddle
 	      random_token = SecureRandom.urlsafe_base64(nil, false)
 	      break random_token unless self.invite_tokens.include?(random_token)
 	    end
-      "#{email}--token"
+      "#{email}--#{token}"
     end
 end
