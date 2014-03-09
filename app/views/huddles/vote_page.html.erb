@@ -1,4 +1,5 @@
 <%= form_tag submit_vote_huddle_path(@huddle), method: :put do %>
+	<%= text_field_tag "voter_email", "", placeholder: "Enter your email here" %>
 	<% @huddle.nominations.each do |nom| %>
 		<div class="nom-name"><%= nom.name %></div>
 		<%= label_tag "#{nom.id}_1".to_sym, "Bad" %>

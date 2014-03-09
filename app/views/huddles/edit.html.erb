@@ -1,6 +1,6 @@
 <h3>Nominate</h3>
 
-<%= form_tag(huddle_path(@huddle), method: :put) do %>
+<%= form_tag(add_restaurant_huddle_path(@huddle), method: :put) do %>
 	<%= text_field_tag 'restaurant_url' %>
 	<%= submit_tag 'Nominate' %>
 <% end %>
@@ -8,3 +8,6 @@
 <% @huddle.nominations.each do |nom| %>
 	<div class="nom-name"><%= nom.name %></div>
 <% end %>
+
+
+<%= link_to "Done Adding Restaurants", invite_voters_huddle_path(@huddle) %>

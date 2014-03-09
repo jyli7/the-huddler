@@ -1,0 +1,10 @@
+<%= form_tag(invite_voter_huddle_path(@huddle), method: :put) do %>
+	<%= text_field_tag 'voter_email' %>
+	<%= submit_tag 'Invite' %>
+<% end %>
+
+<% @huddle.invited_emails.each do |email| %>
+	<div class="invited-email"><%= email %></div>
+<% end %>
+
+<%= link_to "Done Inviting Users", vote_page_huddle_path(@huddle) %>

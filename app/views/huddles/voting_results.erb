@@ -1,0 +1,6 @@
+<h3>Vote Results</h3>
+
+<% @sorted_nominations.each do |nom| %>
+	<div class="nom-name"><%= nom.name %></div>
+	<div class="nom-score"><%= nom.total_score %></div>
+<% end %>
