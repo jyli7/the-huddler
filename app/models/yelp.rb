@@ -12,17 +12,21 @@ class Yelp
 	def initialize
 		consumer = OAuth::Consumer.new(CONSUMER_KEY, CONSUMER_SECRET, {:site => "#{API_HOST}"})
 		@access_token = OAuth::AccessToken.new(consumer, TOKEN, TOKEN_SECRET)
-
 	end
 
 	def nyc_restaurants
 		path = "/v2/search?term=restaurants&location=new%20york"
-		@access_token.get(path).body
+		access_token.get(path).body
 	end
 
 	def restaurant(id)
 		path = "/v2/business/#{id}"
-		@access_token.get(path).body
+		access_token.get(path).body
+	end
+
+	def get_id_from_url(url)
+		result = /biz\/([^\/]*)\/*/.match(url)
+		result[1] if result && result.is_a?(Array)
 	end
 	
 end
