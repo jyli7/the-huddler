@@ -1,15 +1,15 @@
 <%= form_tag submit_vote_huddle_path(@huddle), method: :put do %>
-	<%= text_field_tag "voter_email", "", placeholder: "Enter your email here" %>
+	<%= hidden_field_tag "invite_token", params[:invite_token] %>
 	<% @huddle.nominations.each do |nom| %>
 		<div class="nom-name"><%= nom.name %></div>
-		<%= label_tag "#{nom.id}_1".to_sym, "Bad" %>
-		<%= radio_button_tag(nom.id, 1) %>
+		<%= label_tag "votes_#{nom.id}_1".to_sym, "Bad" %>
+		<%= radio_button_tag("votes[#{nom.id}]", 1) %>
 
-		<%= label_tag "#{nom.id}_2".to_sym, "Okay" %>
-		<%= radio_button_tag(nom.id, 2) %>
+		<%= label_tag "votes_#{nom.id}_2".to_sym, "Okay" %>
+		<%= radio_button_tag("votes[#{nom.id}]", 2) %>
 
-		<%= label_tag "#{nom.id}_3".to_sym, "Great" %>
-		<%= radio_button_tag(nom.id, 3) %>
+		<%= label_tag "votes_#{nom.id}_3".to_sym, "Great" %>
+		<%= radio_button_tag("votes[#{nom.id}]", 3) %>
 	<% end %>
 	<%= submit_tag 'Vote' %>
 <% end %>

@@ -1,5 +1,5 @@
 class HuddlesController < ApplicationController
-	before_filter :find_huddle, only: [:edit, :update, :vote_page, :submit_vote, :invite_voter, :invite_voters]
+	before_filter :find_huddle, only: [:edit, :add_restaurant, :vote_page, :submit_vote, :invite_voter, :invite_voters]
 
   def new
   	@huddle = Huddle.create
@@ -30,8 +30,8 @@ class HuddlesController < ApplicationController
   end
 
   def invite_voter
-  	if params[:voter_email]
-  		@huddle.add_invitee_email!(params[:voter_email])
+  	if params[:invitee_email]
+  		@huddle.invite_this_email!(params[:invitee_email])
   	end
   	redirect_to invite_voters_huddle_path(@huddle)
   end
@@ -40,24 +40,22 @@ class HuddlesController < ApplicationController
   end
 
   def vote_page
+    if !params[:invite_token] || !@huddle.invited_this_token?(params[:invite_token])
+      flash[:error] = "You were not invited to this huddle"
+      redirect_to root_path
+    elsif @huddle.invited_this_token?(params[:invite_token]) and
+          @huddle.token_exhausted?(params[:invite_token])
+      flash[:error] = "You already voted in this huddle"
+      redirect_to root_path
+    else
+      render 'vote_page'
+    end
   end
 
   def submit_vote
-    if params[:voter_email]
-      if !@huddle.invited_this_voter?(params[:voter_email])
-        flash[:error] = "You were not invited to this huddle"
-        redirect_to root_path
-      elsif @huddle.already_voted?(params[:voter_email])
-        flash[:error] = "You already voted in this huddle"
-        redirect_to root_path
-      else
-        nom_votes_hash = {}
-        @huddle.nominations.each { |nom| nom_votes_hash[nom.id] = params[nom.id.to_s]}
-        @huddle.submit_votes!(params[:voter_email], nom_votes_hash)
-        @sorted_nominations = @huddle.nominations.order_by(:total_score.desc)
-        render 'voting_results'
-      end
-    end
+    @huddle.submit_votes!(params[:invite_token], params[:votes])
+    @sorted_nominations = @huddle.nominations.order_by(:total_score.desc)
+    render 'voting_results'
   end
 
   private
