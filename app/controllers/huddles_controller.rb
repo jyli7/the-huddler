@@ -1,8 +1,8 @@
 class HuddlesController < ApplicationController
 	before_filter :find_huddle, only: [:edit, :add_restaurant, :vote_page, :submit_vote, :invite_voter, :invite_voters]
 
-  def new
-  	@huddle = Huddle.create
+  def create
+  	@huddle = Huddle.create(creator_email: params[:creator_email])
   	redirect_to edit_huddle_path(@huddle)
   end
 
@@ -32,7 +32,10 @@ class HuddlesController < ApplicationController
   def invite_voter
   	if params[:invitee_email]
       if !@huddle.invited_emails.include?(params[:invitee_email])
-  		  @huddle.invite_this_email!(params[:invitee_email])
+  		  @huddle.add_to_invited_emails(params[:invitee_email])
+        @huddle.add_token_for(params[:invitee_email])
+        @huddle.email_invitee(params[:invitee_email])
+        @huddle.save!
       else
         flash[:error] = "You already invited this email"
       end   

@@ -1,34 +1,35 @@
 class Huddle
   include Mongoid::Document
 
-  field :invited_tokens,        type: Array, default: []
-  field :exhausted_tokens,       type: Array, default: []
+  field :invite_tokens,        type: Array, default: []
+  field :exhausted_tokens,      type: Array, default: []
   field :invited_emails,        type: Array, default: []
+  field :creator_email,         type: String
   field :creator_invite_token,  type: String
 
   embeds_many :nominations
 
-  before_create :set_creator_invite_token
-
+  after_create :invite_creator
   after_update :alert_all_voters, if: :huddle_just_completed?
 
-  def invite_this_email!(email)
+  def add_to_invited_emails(email)
     self.invited_emails ||= []
     if !self.invited_emails.include?(email)
-      self.add_token
       self.invited_emails.push(email)
-      UserMailer.email_invite(email, self, self.invited_tokens.last).deliver
-      self.save!
     end
   end
 
-  def add_token
-    self.invited_tokens ||= []
-    self.invited_tokens.push(generate_invite_token)
+  def email_invitee(email)
+    UserMailer.email_invite(email, self, self.invite_token_for(email)).deliver
   end
 
-  def add_token!
-    self.add_token
+  def add_token_for(email)
+    self.invite_tokens ||= []
+    self.invite_tokens.push(generate_invite_token_for(email))
+  end
+
+  def add_token_for!(email)
+    self.add_token(email)
     self.save!
 	end
 
@@ -43,11 +44,15 @@ class Huddle
   end
 
   def invited_this_token?(token)
-  	self.invited_tokens.include?(token)
+  	self.invite_tokens.include?(token)
   end
 
   def token_exhausted?(token)
   	self.exhausted_tokens.include?(token)
+  end
+
+  def invite_token_for(email)
+    self.invite_tokens.detect{|it| it.split('--')[0] == email}
   end
 
   def submit_votes!(invite_token, votes_hash)
@@ -62,27 +67,33 @@ class Huddle
   end
 
   def alert_all_voters
-    
+
   end
 
   protected
 
     def huddle_just_completed?
-      invited_tokens > 0 && exhausted_tokens > 0 &&
-      invited_tokens.length == exhausted_tokens.length &&
+      invite_tokens > 0 && exhausted_tokens > 0 &&
+      invite_tokens.length == exhausted_tokens.length &&
       exhausted_tokens.changed?
     end
 
-    def set_creator_invite_token
-      self.creator_invite_token = generate_invite_token
-      self.invited_tokens ||= []
-      self.invited_tokens.push(self.creator_invite_token)
+    def invite_creator
+      self.add_to_invited_emails!(self.creator_email)
+      set_creator_invite_token
     end
 
-  	def generate_invite_token
+    def set_creator_invite_token
+      self.creator_invite_token = generate_invite_token_for(self.creator_email)
+      self.invite_tokens ||= []
+      self.invite_tokens.push(self.creator_invite_token)
+    end
+
+  	def generate_invite_token_for(email)
 	  	token = loop do
 	      random_token = SecureRandom.urlsafe_base64(nil, false)
-	      break random_token unless self.invited_tokens.include?(random_token)
+	      break random_token unless self.invite_tokens.include?(random_token)
 	    end
+      "#{email}--token"
     end
 end

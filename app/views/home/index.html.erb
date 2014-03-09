@@ -1,1 +1,5 @@
-<%= link_to 'HUDDLE!', new_huddle_path %>
+<h3>Enter your email to create your new huddle</h3>
+<%= form_tag huddle_path(@huddle), method: :create do %>
+	<%= text_field_tag "creator_email", "", placeholder: "Your email" %>
+	<%= submit_tag "Create Huddle" %>
+<% end %>
