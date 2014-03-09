@@ -1,5 +1,5 @@
 class HuddlesController < ApplicationController
-	before_filter :find_huddle, only: [:edit, :update]
+	before_filter :find_huddle, only: [:edit, :update, :vote_page, :submit_vote]
 
   def new
   	@huddle = Huddle.create
@@ -24,13 +24,20 @@ class HuddlesController < ApplicationController
   	rescue Mongoid::Errors::Validations => e
   		flash[:error] = "You've already added this restaurant to your huddle"
   	rescue JSON::ParserError => e
-  		flash[:error] = "Invalid input. Please enter full restaurant URL."
+  		flash[:error] = "Restaurant not found. Please try again, with restaurant's full url."
   	end
-  	# rescue
-  	# 	binding.pry
-  	# 	flash[:error] = "Restaurant not found"
-  	# end
   	redirect_to edit_huddle_path(@huddle)
+  end
+
+  def vote_page
+  end
+
+  def submit_vote
+  	@huddle.nominations.each do |nom|
+  		nom_score = params[nom.id.to_s].to_i if params[nom.id.to_s].present?
+  		nom.add_to_score!(nom_score)
+  	end
+  	redirect_to vote_page_huddle_path(@huddle)
   end
 
   private

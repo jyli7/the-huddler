@@ -26,7 +26,7 @@ class Yelp
 
 	def get_id_from_url(url)
 		result = /biz\/([^\/]*)\/*/.match(url)
-		result[1] if result && result.is_a?(Array)
+		result[1] if result && result.is_a?(MatchData)
 	end
 	
 end

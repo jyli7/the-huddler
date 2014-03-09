@@ -3,5 +3,10 @@ TheHuddler::Application.routes.draw do
   devise_for :users, :controllers => {:registrations => "registrations"}
   resources :users
 
-  resources :huddles
+  resources :huddles do
+  	member do
+  		get :vote_page
+  		put :submit_vote
+  	end
+  end
 end
