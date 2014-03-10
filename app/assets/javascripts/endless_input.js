@@ -23,21 +23,28 @@
 
 	var EndlessInput = function ($inputs) {
 		this.$inputs = $inputs;
-		this.activeElementTop = this.$inputs.first().position().top;
+		this.$activeElement = this.$inputs.first();
 	};
+
+	EndlessInput.prototype.activeElement = function () {
+
+	}
 
 	EndlessInput.prototype.activateInput = function ($input) {
 		var distanceToScroll
-			, topOfFirstElement
+			, topOfActiveElement
 			, topOfThisElement
 			;
 
 		topOfThisElement = $input.position().top;
-		distanceToScroll = topOfThisElement - this.activeElementTop;
+		topOfActiveElement = this.$activeElement.position().top;
+		distanceToScroll = topOfThisElement - topOfActiveElement;
 
 		this.$inputs.animate({
 			top: "-=" + distanceToScroll
 		}, 400);
+
+		this.$activeElement = $input;
 	};
 
 	EndlessInput.prototype.init = function () {
