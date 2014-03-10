@@ -12,6 +12,17 @@ class Huddle
   after_create :invite_creator
   after_update :alert_all_voters, if: :huddle_just_completed?
 
+  def invite_voter(invitee_email)
+    if !self.invited_emails.include?(invitee_email)
+      self.add_to_invited_emails(invitee_email)
+      self.add_token_for(invitee_email)
+      self.email_invitee(invitee_email)
+      self.save!
+    else
+      raise "You already invited this voter"
+    end
+  end
+
   def add_to_invited_emails(email)
     self.invited_emails ||= []
     if !self.invited_emails.include?(email)

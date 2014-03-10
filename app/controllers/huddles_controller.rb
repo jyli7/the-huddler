@@ -30,13 +30,10 @@ class HuddlesController < ApplicationController
 
   def invite_voter
   	if params[:invitee_email]
-      if !@huddle.invited_emails.include?(params[:invitee_email])
-  		  @huddle.add_to_invited_emails(params[:invitee_email])
-        @huddle.add_token_for(params[:invitee_email])
-        @huddle.email_invitee(params[:invitee_email])
-        @huddle.save!
-      else
-        flash[:error] = "You already invited this email"
+      begin
+        @huddle.invite_voter(params[:invitee_email])
+      rescue Exception => e
+        flash[:error] = e.message
       end   
   	end
   	redirect_to invite_voters_huddle_path(@huddle)

@@ -8,7 +8,7 @@
 <% if @huddle.nominations and @huddle.nominations.length > 0 %>
 	<h3>Nominations so far</h3>
 	<% @huddle.nominations.each do |nom| %>
-		<div class="nom-name"><%= nom.name %></div>
+		<%= link_to nom.name, nom.url, rel: "shadowbox", title: nom.name, class: "nom-link" %>
 	<% end %>
 <% end %>
 

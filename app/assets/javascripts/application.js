@@ -15,6 +15,12 @@
 //= require turbolinks
 //= require foundation
 //= require_tree .
+
 $(function() {
   $(document).foundation();
+
+  Shadowbox.init({
+    width: 800,
+    height: 600
+  });
 });
