@@ -1,7 +1,9 @@
 <h3>Nominate</h3>
 
-<%= form_tag(add_restaurant_huddle_path(@huddle), method: :put) do %>
-	<%= text_field_tag 'restaurant_url', '', placeholder: 'Enter restaurant url from Yelp' %>
+<%= form_tag(add_restaurant_huddle_path(@huddle), method: :put, class: "nom-form") do %>
+	<% (0..4).each do |i| %>
+		<%= text_field_tag 'restaurant_url', '', placeholder: 'Enter restaurant url from Yelp', data: {endless: 1} %>
+	<% end %>
 	<%= submit_tag 'Nominate' %>
 <% end %>
 
