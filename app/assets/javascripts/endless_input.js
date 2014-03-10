@@ -1,4 +1,6 @@
 (function () {
+	// HELPER FUNCTIONS
+
 	// Takes in jQuery objects as inputs, returns an object whose
 	// key is the common value of data-endless, and whose value is
 	// the array of jQuery objects that have that input value
@@ -17,13 +19,44 @@
 		return result;
 	};
 
-	var EndlessInput = function (inputs) {
-		this.inputs = inputs;
+	// CONSTRUCTOR FUNCTIONS
+
+	var EndlessInput = function ($inputs) {
+		this.$inputs = $inputs;
+		this.activeElementTop = this.$inputs.first().position().top;
+	};
+
+	EndlessInput.prototype.activateInput = function ($input) {
+		var distanceToScroll
+			, topOfFirstElement
+			, topOfThisElement
+			;
+
+		topOfThisElement = $input.position().top;
+		distanceToScroll = topOfThisElement - this.activeElementTop;
+
+		this.$inputs.animate({
+			top: "-=" + distanceToScroll
+		}, 400);
 	};
 
 	EndlessInput.prototype.init = function () {
-		console.log(this.inputs);
+		var that = this;
+		// Highlight first element
+		this.$inputs.first().focus();
+
+		// Change position of elements to 'absolute'
+		this.$inputs.css('position', 'relative');
+
+		// Whenever you click into any element, move every element
+		// by the distance between the top element and this element
+		this.$inputs.on('focus', function () {
+			that.activateInput($(this));
+		});
 	};
+
+
+	// MAIN FUNCTION
 
 	$(function () {
 		var $allRelevantInputs
@@ -35,8 +68,10 @@
 		uniqueInputGroupings = getGroupingsForInputs($allRelevantInputs);
 
 		for (var key in uniqueInputGroupings) {
-			 endlessInput = new EndlessInput(uniqueInputGroupings[key]);
-			 endlessInput.init();
+			var arrayOfJqueryObjects = uniqueInputGroupings[key];
+			var $inputs = $(arrayOfJqueryObjects).map (function () { return this.toArray(); } );
+			endlessInput = new EndlessInput($inputs);
+			endlessInput.init();
 		}
 	});
 
