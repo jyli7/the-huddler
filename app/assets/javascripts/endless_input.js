@@ -166,6 +166,7 @@
 		this.$activeElement = $newActiveElement;
 		this.scrollElements($newActiveElement);
 		this.fadeOrHideElements($newActiveElement);
+		this.revealArrowsAppropriately();
 	};
 
 	EndlessInput.prototype.generateArrows = function () {
@@ -225,6 +226,19 @@
 		});
 	}
 
+	EndlessInput.prototype.revealArrowsAppropriately = function () {
+		this.$upArrow.removeClass('endless-hidden');
+		this.$downArrow.removeClass('endless-hidden');
+
+		var lastElementIndex = this.$inputs.index(this.$inputs.last());
+		
+		if (this.$inputs.index(this.$activeElement) === 0) {
+			this.$upArrow.addClass('endless-hidden');
+		} else if (this.$inputs.index(this.$activeElement) === lastElementIndex) {
+			this.$downArrow.addClass('endless-hidden');
+		}
+	}
+
 	EndlessInput.prototype.init = function () {
 		var that = this;
 
@@ -243,6 +257,7 @@
 		this.generateArrows();
 		this.placeArrows();
 		this.activateArrows();
+		this.revealArrowsAppropriately();
 	};
 
 
