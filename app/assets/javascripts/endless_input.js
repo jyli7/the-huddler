@@ -23,13 +23,13 @@
 		$inputs.addClass('hide-with-z-index');
 		$inputs.animate({
 			opacity: 0,
-		}, this.slideDelay);
+		}, this.inputsSlideDelay);
 	}
 
 	var customShow = function ($inputs) {
 		$inputs.animate({
 			opacity: 1
-		}, this.slideDelay * 0.5);
+		}, this.inputsSlideDelay * 0.5);
 		$inputs.removeClass('hide-with-z-index');
 	}
 
@@ -38,57 +38,77 @@
 	var EndlessInput = function ($inputs) {
 			this.$inputs = $inputs
 		, this.$activeElement = this.$inputs.first()
-		, this.slideDelay = 250
+		// CUSTOM OPTION
+		// BLURRING IS A FUNCTION OF INPUT LENGTH! MIN INPUT LENGTH OF 3
+		, this.visibleInputLength = 5
+		, this.minLength = 3
+
+		// CUSTOM OPTION
+		, this.inputsSlideDelay = 250
+		, this.selector = 'input[data-endless=' + 
+											this.$activeElement.data('endless') +']'
+		, this.blurIncrement = 1 / this.visibleInputLength;
+		// HAVING ARROWS IS A CUSTOM OPTION TOO
 		;
 	};
 
-	EndlessInput.prototype.blurAndHideElements = function () {
-		var majorBlur = 0.3
-			, mediumBlur = 0.5
-			, minorBlur = 0.8
-			, normal = 1
-			, $elementRightBeforeActive
-			, $elementRightAfterActive
-			, $elementTwoAfterActive
-			, $elementsFarBefore
-			, $elementsFarBeyond
-			, selectorForTrueSiblings
-			;
 
-		// Refactor this into a specific method that takes in DISTANCE FROM ACTIVE! (-1, 0, 1, 2, etc);
-		// Set all inputs to normal first
-		// this.$inputs.css('opacity', normal);
-		// this.$inputs.show();
+	EndlessInput.prototype.blurElement = function ($element) {
 
-		customShow(this.$activeElement);
+	}
 
-		selectorForTrueSiblings = 'input[data-endless=' + this.$activeElement.data('endless') +']';
+	EndlessInput.prototype.resetSpecificElement = function (distanceFromActive) {
+		var $elementToModify;
 
-		$elementRightBeforeActive = this.$activeElement.prev(selectorForTrueSiblings);
-		if ($elementRightBeforeActive) {
-			customHide($elementRightBeforeActive);
+		if (distanceFromActive === 0) {
+			customShow(this.$activeElement);
+		} else if (distanceFromActive === -1) {
+			$elementToModify = this.$activeElement.prev(this.selector);
+		} else if (distanceFromActive === 1) {
+			$elementToModify = this.$activeElement.next(this.selector);
+		} else if (distanceFromActive === 2) {
+			$elementToModify = this.$activeElement.next(this.selector)
+																						.next(this.selector);
+		} else if (distanceFromActive === 3) {
+			$elementToModify = this.$activeElement.next(this.selector)
+																						.next(this.selector)
+																						.next(this.selector);			
 		}
 
-		$elementRightAfterActive = this.$activeElement.next(selectorForTrueSiblings);
-		if ($elementRightAfterActive) {
-			$elementRightAfterActive.css('opacity', minorBlur);
-		}
-
-		$elementRightAfterActive = this.$activeElement.next(selectorForTrueSiblings).next(selectorForTrueSiblings);
-		if ($elementRightAfterActive) {
-			$elementRightAfterActive.css('opacity', mediumBlur);
-		}
-
-		$elementRightAfterActive = this.$activeElement.next(selectorForTrueSiblings).next(selectorForTrueSiblings).next(selectorForTrueSiblings);
-		if ($elementRightAfterActive) {
-			$elementRightAfterActive.show();
-			$elementRightAfterActive.css('opacity', majorBlur);
-		}
-
-		$elementsFarBeyond = this.$activeElement.next(selectorForTrueSiblings).next(selectorForTrueSiblings).next(selectorForTrueSiblings).nextAll(selectorForTrueSiblings);
+		$elementsFarBeyond = this.$activeElement.next(this.selector).next(this.selector).next(this.selector).nextAll(this.selector);
 		if ($elementsFarBeyond) {
 			$elementsFarBeyond.hide();
 		}
+
+
+
+	}
+
+	EndlessInput.prototype.resetElements = function () {
+		// Reset all elements before active element, if they exist
+		var $previousElements = this.$activeElement.prevAll(this.selector);
+		if ($previousElements) {
+			customHide($previousElements);
+		}
+		
+		// Reset active element
+		customShow(this.$activeElement);
+
+		// Reset all visible elements after active element
+		var $activeElementIndex = this.$inputs.index(this.$activeElement);
+		for (var i = $activeElementIndex + 1;
+				 i < $activeElementIndex + this.visibleInputLength; i++) {
+				
+			var $el = $(this.$inputs.get(i));
+			var distanceFromActive = i - $activeElementIndex;
+			$el.show();
+			$el.css('opacity', 1 - this.blurIncrement * distanceFromActive);
+		}
+
+		// Reset all elements AFTER all visible ones
+		var lastVisibleIndex = $activeElementIndex + this.visibleInputLength - 1;
+		var $lastVisibleEl = $(this.$inputs.get(lastVisibleIndex));
+		$lastVisibleEl.nextAll(this.selector).hide();
 	};
 
 	EndlessInput.prototype.activateInput = function ($input) {
@@ -104,10 +124,10 @@
 
 		this.$inputs.animate({
 			top: "-=" + distanceToScroll
-		}, this.slideDelay);
+		}, this.inputsSlideDelay);
 
 		this.$activeElement = $input;
-		this.blurAndHideElements();
+		this.resetElements();
 	};
 
 	EndlessInput.prototype.init = function () {
@@ -117,7 +137,7 @@
 		this.$inputs.first().focus();
 		this.activeElementFixedTop = this.$inputs.first().position().top;
 
-		this.blurAndHideElements();
+		this.resetElements();
 
 		// Whenever you click into any element, move every element
 		// by the distance between the top element and this element
@@ -172,8 +192,6 @@
 				that.$activeElement.next().focus();	
 			}
 		});
-
-
 	};
 
 
@@ -184,9 +202,13 @@
 			,	endlessInput
 			;
 
+		// Grab all inputs marked with a data-endless value
 		$allRelevantInputs = $('[data-endless]');
+
+		// Sort those inputs into groups that have the same data-endless value
 		uniqueInputGroupings = getGroupingsForInputs($allRelevantInputs);
 
+		// Initialize endless input for each of those groupings
 		for (var key in uniqueInputGroupings) {
 			var arrayOfJqueryObjects = uniqueInputGroupings[key];
 			var $inputs = $(arrayOfJqueryObjects).map (function () { return this.toArray(); } );
@@ -194,6 +216,5 @@
 			endlessInput.init();
 		}
 	});
-
 	
 }).call(this);
