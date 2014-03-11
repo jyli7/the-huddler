@@ -23,7 +23,9 @@
 		$inputs.animate({
 			opacity: 0,
 		}, this.slideDelay);
-		$inputs.css('z-index', -1000);
+		setTimeout(function () {
+			$inputs.css('z-index', -9999);
+		}, 1000);
 	}
 
 	// CONSTRUCTOR FUNCTIONS
@@ -45,6 +47,7 @@
 			, $elementTwoAfterActive
 			, $elementsFarBefore
 			, $elementsFarBeyond
+			, selectorForTrueSiblings
 			;
 
 		// Refactor this into a specific method that takes in DISTANCE FROM ACTIVE! (-1, 0, 1, 2, etc);
@@ -52,15 +55,18 @@
 		// this.$inputs.css('opacity', normal);
 		// this.$inputs.show();
 
-		$elementRightBeforeActive = this.$activeElement.prev()
+		selectorForTrueSiblings = 'input[data-endless=' + this.$activeElement.data('endless') +']';
+
+		$elementRightBeforeActive = this.$activeElement.prev(selectorForTrueSiblings);
 		if ($elementRightBeforeActive) {
 			hideUp($elementRightBeforeActive);
 		}
 
-		$elementsFarBefore = this.$activeElement.prev().prevAll();
-		if ($elementsFarBefore) {
-			$elementsFarBefore.hide();
-		}		
+		// $elementsFarBefore = this.$activeElement.prev(selectorForTrueSiblings).prevAll(selectorForTrueSiblings);
+		// if ($elementsFarBefore) {
+		// 	$elementsFarBefore.css('position', 'absolute');
+		// 	$elementsFarBefore.offset({top: -9999, left: -9999});
+		// }
 
 		$elementRightAfterActive = this.$activeElement.next();
 		if ($elementRightAfterActive) {
@@ -89,10 +95,11 @@
 			, topOfThisElement
 			;
 
+		this.$inputs.css('position', 'relative');
+
 		topOfThisElement = $input.position().top;
 		distanceToScroll = topOfThisElement - this.activeElementFixedTop;
 
-		this.$inputs.css('position', 'relative');
 		this.$inputs.animate({
 			top: "-=" + distanceToScroll
 		}, this.slideDelay);
