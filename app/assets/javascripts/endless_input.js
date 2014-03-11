@@ -19,7 +19,7 @@
 		return result;
 	};
 
-	var totallyDeactivate = function ($inputs) {
+	var hideUp = function ($inputs) {
 		$inputs.animate({
 			opacity: 0,
 		}, this.slideDelay);
@@ -35,9 +35,10 @@
 		;
 	};
 
-	EndlessInput.prototype.reBlurElements = function () {
-		var majorBlur = 0.4
-			, minorBlur = 0.7
+	EndlessInput.prototype.blurAndHideElements = function () {
+		var majorBlur = 0.3
+			, mediumBlur = 0.5
+			, minorBlur = 0.8
 			, normal = 1
 			, $elementRightBeforeActive
 			, $elementRightAfterActive
@@ -51,28 +52,35 @@
 		// this.$inputs.css('opacity', normal);
 		// this.$inputs.show();
 
-		$elementsFarBefore = this.$activeElement.prevAll()
-		if ($elementsFarBefore) {
-			totallyDeactivate($elementsFarBefore);
+		$elementRightBeforeActive = this.$activeElement.prev()
+		if ($elementRightBeforeActive) {
+			hideUp($elementRightBeforeActive);
 		}
 
-		// $elementsFarBeyond = this.$activeElement.nextAll()
-		// if ($elementsFarBeyond) {
-		// 	$elementsFarBefore.hide();	
-		// }
+		$elementsFarBefore = this.$activeElement.prev().prevAll();
+		if ($elementsFarBefore) {
+			$elementsFarBefore.hide();
+		}		
 
-		// $elementRightTwoAfterActive = this.$activeElement.next().next();
-		// if ($elementTwoAfterActive) {
-		// 	$elementTwoAfterActive.show();
-		// 	$elementTwoAfterActive.css('opacity', majorBlur);
-		// }
+		$elementRightAfterActive = this.$activeElement.next();
+		if ($elementRightAfterActive) {
+			$elementRightAfterActive.css('opacity', minorBlur);
+		}
 
-		// $elementRightAfterActive = this.$activeElement.next();
-		// if ($elementRightAfterActive) {
-		// 	$elementRightAfterActive.show();
-		// 	$elementRightAfterActive.css('opacity', minorBlur);
-		// }
+		$elementRightAfterActive = this.$activeElement.next().next();
+		if ($elementRightAfterActive) {
+			$elementRightAfterActive.css('opacity', mediumBlur);
+		}
 
+		$elementRightAfterActive = this.$activeElement.next().next().next();
+		if ($elementRightAfterActive) {
+			$elementRightAfterActive.css('opacity', majorBlur);
+		}
+
+		$elementsFarBeyond = this.$activeElement.next().next().next().nextAll();
+		if ($elementsFarBeyond) {
+			$elementsFarBeyond.hide();
+		}
 	};
 
 	EndlessInput.prototype.activateInput = function ($input) {
@@ -90,7 +98,7 @@
 		}, this.slideDelay);
 
 		this.$activeElement = $input;
-		this.reBlurElements();
+		this.blurAndHideElements();
 	};
 
 	EndlessInput.prototype.init = function () {
@@ -99,6 +107,8 @@
 		// Highlight first element
 		this.$inputs.first().focus();
 		this.activeElementFixedTop = this.$inputs.first().position().top;
+
+		this.blurAndHideElements();
 
 		// Whenever you click into any element, move every element
 		// by the distance between the top element and this element
