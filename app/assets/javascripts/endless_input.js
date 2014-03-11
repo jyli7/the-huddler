@@ -19,13 +19,18 @@
 		return result;
 	};
 
-	var hideUp = function ($inputs) {
+	var customHide = function ($inputs) {
+		$inputs.addClass('hide-with-z-index');
 		$inputs.animate({
 			opacity: 0,
 		}, this.slideDelay);
-		setTimeout(function () {
-			$inputs.css('z-index', -9999);
-		}, 1000);
+	}
+
+	var customShow = function ($inputs) {
+		$inputs.animate({
+			opacity: 1
+		}, this.slideDelay * 0.5);
+		$inputs.removeClass('hide-with-z-index');
 	}
 
 	// CONSTRUCTOR FUNCTIONS
@@ -33,7 +38,7 @@
 	var EndlessInput = function ($inputs) {
 			this.$inputs = $inputs
 		, this.$activeElement = this.$inputs.first()
-		, this.slideDelay = 400
+		, this.slideDelay = 250
 		;
 	};
 
@@ -55,18 +60,14 @@
 		// this.$inputs.css('opacity', normal);
 		// this.$inputs.show();
 
+		customShow(this.$activeElement);
+
 		selectorForTrueSiblings = 'input[data-endless=' + this.$activeElement.data('endless') +']';
 
 		$elementRightBeforeActive = this.$activeElement.prev(selectorForTrueSiblings);
 		if ($elementRightBeforeActive) {
-			hideUp($elementRightBeforeActive);
+			customHide($elementRightBeforeActive);
 		}
-
-		// $elementsFarBefore = this.$activeElement.prev(selectorForTrueSiblings).prevAll(selectorForTrueSiblings);
-		// if ($elementsFarBefore) {
-		// 	$elementsFarBefore.css('position', 'absolute');
-		// 	$elementsFarBefore.offset({top: -9999, left: -9999});
-		// }
 
 		$elementRightAfterActive = this.$activeElement.next();
 		if ($elementRightAfterActive) {
@@ -80,6 +81,7 @@
 
 		$elementRightAfterActive = this.$activeElement.next().next().next();
 		if ($elementRightAfterActive) {
+			$elementRightAfterActive.show();
 			$elementRightAfterActive.css('opacity', majorBlur);
 		}
 
@@ -126,7 +128,6 @@
 
 
 	// MAIN FUNCTION
-
 	$(function () {
 		var $allRelevantInputs
 			, uniqueInputGroupings
