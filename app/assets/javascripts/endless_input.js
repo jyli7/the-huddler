@@ -20,10 +20,10 @@
 	};
 
 	var customHide = function ($inputs) {
-		$inputs.addClass('hide-with-z-index');
 		$inputs.animate({
-			opacity: 0,
+			opacity: 0
 		}, this.inputsSlideDelay);
+		$inputs.addClass('hide-with-z-index');
 	}
 
 	var customShow = function ($inputs) {
@@ -47,42 +47,19 @@
 		, this.inputsSlideDelay = 250
 		, this.selector = 'input[data-endless=' + 
 											this.$activeElement.data('endless') +']'
-		, this.blurIncrement = 1 / this.visibleInputLength;
-		// HAVING ARROWS IS A CUSTOM OPTION TOO
+		, this.blurIncrement = 1 / this.visibleInputLength
 		;
+
+		if ($(this.$inputs.parent('form'))) {
+			this.$form = $(this.$inputs.parent('form'));
+			if (this.$form.find("input[type='submit']")) {
+				this.$submitButton = this.$form.find("input[type='submit']");
+			}
+		}
+
+		
+		// HAVING ARROWS IS A CUSTOM OPTION TOO
 	};
-
-
-	EndlessInput.prototype.blurElement = function ($element) {
-
-	}
-
-	EndlessInput.prototype.resetSpecificElement = function (distanceFromActive) {
-		var $elementToModify;
-
-		if (distanceFromActive === 0) {
-			customShow(this.$activeElement);
-		} else if (distanceFromActive === -1) {
-			$elementToModify = this.$activeElement.prev(this.selector);
-		} else if (distanceFromActive === 1) {
-			$elementToModify = this.$activeElement.next(this.selector);
-		} else if (distanceFromActive === 2) {
-			$elementToModify = this.$activeElement.next(this.selector)
-																						.next(this.selector);
-		} else if (distanceFromActive === 3) {
-			$elementToModify = this.$activeElement.next(this.selector)
-																						.next(this.selector)
-																						.next(this.selector);			
-		}
-
-		$elementsFarBeyond = this.$activeElement.next(this.selector).next(this.selector).next(this.selector).nextAll(this.selector);
-		if ($elementsFarBeyond) {
-			$elementsFarBeyond.hide();
-		}
-
-
-
-	}
 
 	EndlessInput.prototype.resetElements = function () {
 		// Reset all elements before active element, if they exist
@@ -119,12 +96,21 @@
 
 		this.$inputs.css('position', 'relative');
 
+
 		topOfThisElement = $input.position().top;
 		distanceToScroll = topOfThisElement - this.activeElementFixedTop;
 
 		this.$inputs.animate({
 			top: "-=" + distanceToScroll
 		}, this.inputsSlideDelay);
+
+		if (this.$submitButton) {
+			var currentTop = this.$submitButton.top
+			this.$submitButton.css('position', 'relative');
+			this.$submitButton.animate({
+				top: "-=" + distanceToScroll
+			}, 0);
+		}
 
 		this.$activeElement = $input;
 		this.resetElements();
@@ -138,6 +124,16 @@
 		this.activeElementFixedTop = this.$inputs.first().position().top;
 
 		this.resetElements();
+
+		// Set form overflow to hidden, fix position of submit button 
+		if (this.$form) {
+			this.$form.css({ 'max-height' : this.$form.height()});
+		}
+
+		
+
+
+
 
 		// Whenever you click into any element, move every element
 		// by the distance between the top element and this element
