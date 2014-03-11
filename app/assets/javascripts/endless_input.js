@@ -148,7 +148,7 @@
 		}
 	}
 
-	EndlessInput.prototype.setForm = function () {
+	EndlessInput.prototype.fixFormHeight = function () {
 		this.$form.css('max-height' , this.$form.height());
 	}
 
@@ -171,7 +171,7 @@
 		this.$inputs.first().focus();
 		this.fadeOrHideElements();
 		if (this.$form) {
-			this.setForm();
+			this.fixFormHeight();
 		}
 
 		this.$inputs.on('focus', function () {
