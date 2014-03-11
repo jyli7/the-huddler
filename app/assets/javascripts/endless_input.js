@@ -33,8 +33,6 @@
 		$inputs.removeClass('hide-with-z-index');
 	}
 
-	// CONSTRUCTOR FUNCTIONS
-
 	var EndlessInput = function ($inputs) {
 			this.$inputs = $inputs
 		, this.$activeElement = this.$inputs.first()
@@ -47,8 +45,14 @@
 		, this.inputsSlideDelay = 250
 		, this.selector = 'input[data-endless=' + 
 											this.$activeElement.data('endless') +']'
-		, this.blurIncrement = 1 / this.visibleInputLength
-		, this.permanentTop = this.$inputs.first().position().top;
+		, this.fadeIncrement = 1 / this.visibleInputLength
+		, this.permanentTop = this.$inputs.first().position().top
+		, this.sectionsHash = {
+													 'beforeActive' : undefined,
+													 'active' : undefined,
+													 'visible' : undefined,
+													 'afterVisible' : undefined
+													}
 		;
 
 		if ($(this.$inputs.parent('form'))) {
@@ -57,44 +61,76 @@
 				this.$submitButton = this.$form.find("input[type='submit']");
 			}
 		}
-
 		
 		// HAVING ARROWS IS A CUSTOM OPTION TOO
 	};
 
-	EndlessInput.prototype.fadeElements = function () {
+	// "Smart" function that does the right thing with the element,
+	// given distance from active
+	EndlessInput.prototype.fadeElement = function ($el, distanceFromActive) {
+		$el.show();
+		$el.css('opacity', 1 - this.fadeIncrement * distanceFromActive);
+	}
+
+	EndlessInput.prototype.fadeOrHideSections = function () {
+		
+	}
+
+	EndlessInput.prototype.fadeOrHideElements = function () {
+		var $previousElements
+			, activeElementIndex
+			, i
+			, lastVisibleIndex
+			, $lastVisibleEl
+			, that
+			;
+
+		that = this;
+
+		// Reset all visible elements after active element
+		var activeElementIndex = this.$inputs.index(this.$activeElement);
+		for (var i = activeElementIndex + 1;
+				 i < activeElementIndex + this.visibleInputLength; i++) {
+
+			this.fadeElement($(this.$inputs.get(i)), i - $activeElementIndex)
+		}
+
+
+		// Reset all elements AFTER all visible ones
+		
+		
+
+
+		// Set sections
+		sectionsHash['beforeActive'] = this.$activeElement.prevAll(this.selector);
+		sectionsHash['active'] = this.$activeElement;
+
+		activeElementIndex = this.$inputs.index(this.$activeElement);
+		sectionsHash['visible'] = this.$inputs
+																  .slice(activeElementIndex,
+																				 activeElementIndex
+																				 + this.visibleInputLength);
+
+		lastVisibleIndex = activeElementIndex + this.visibleInputLength - 1;
+		$lastVisibleEl = $(this.$inputs.get(lastVisibleIndex));
+		sectionsHash['afterVisible'] = $lastVisibleEl.nextAll(this.selector);
+
+		// Fade or hide sections
+		this.fadeOrHideSections();
+
 		// Reset all elements before active element, if they exist
-		var $previousElements = this.$activeElement.prevAll(this.selector);
+		var $previousElements = 
 		if ($previousElements) {
 			customHide($previousElements);
 		}
 		
 		// Reset active element
 		customShow(this.$activeElement);
-
-		// Reset all visible elements after active element
-		var $activeElementIndex = this.$inputs.index(this.$activeElement);
-		for (var i = $activeElementIndex + 1;
-				 i < $activeElementIndex + this.visibleInputLength; i++) {
-				
-			var $el = $(this.$inputs.get(i));
-			var distanceFromActive = i - $activeElementIndex;
-			$el.show();
-			$el.css('opacity', 1 - this.blurIncrement * distanceFromActive);
-		}
-
-		// Reset all elements AFTER all visible ones
-		var lastVisibleIndex = $activeElementIndex + this.visibleInputLength - 1;
-		var $lastVisibleEl = $(this.$inputs.get(lastVisibleIndex));
-		$lastVisibleEl.nextAll(this.selector).hide();
 	};
 
 	EndlessInput.prototype.scrollElements = function ($newActiveElement) {
-		// Make sure all inputs have position relative
 		this.$inputs.css('position', 'relative');
-
-		var topOfNewActiveElement = $newActiveElement.position().top;
-		distanceToScroll = topOfNewActiveElement - this.permanentTop;
+		distanceToScroll = $newActiveElement.position().top - this.permanentTop;
 
 		this.$inputs.animate({
 			top: "-=" + distanceToScroll
@@ -119,14 +155,14 @@
 	EndlessInput.prototype.activateInput = function ($newActiveElement) {
 		this.$activeElement = $newActiveElement;
 		this.scrollElements($newActiveElement);
-		this.fadeElements($newActiveElement);
+		this.fadeOrHideElements($newActiveElement);
 	};
 
 	EndlessInput.prototype.init = function () {
 		var that = this;
 
 		this.$inputs.first().focus();
-		this.fadeElements();
+		this.fadeOrHideElements();
 		if (this.$form) {
 			this.setForm();
 		}
