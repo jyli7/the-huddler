@@ -53,6 +53,10 @@
 													 'visible' : undefined,
 													 'afterVisible' : undefined
 													}
+		, this.$upArrow = undefined
+		, this.$downArrow = undefined
+		, this.distanceBetweenArrows = 35
+		, this.arrowDistancePastInputs = 35
 		;
 
 		if ($(this.$inputs.parent('form'))) {
@@ -86,7 +90,6 @@
 		$active = this.sections['active'];
 		$visible = this.sections['visible'];
 		$afterVisible = this.sections['afterVisible'];
-
 
 		if ($beforeActive && $beforeActive.length) {
 			customHide($beforeActive);
@@ -165,6 +168,63 @@
 		this.fadeOrHideElements($newActiveElement);
 	};
 
+	EndlessInput.prototype.generateArrows = function () {
+		// Place the arrows into the BODY
+		$('body').append("<div class='endless-input-arrow-up'>");
+		$('body').append("<div class='endless-input-arrow-down'>");
+		this.$upArrow = $('.endless-input-arrow-up');
+		this.$downArrow = $('.endless-input-arrow-down');
+		this.$upArrow.css('position', 'absolute');
+		this.$downArrow.css('position', 'absolute');
+	}
+
+	EndlessInput.prototype.placeArrows = function () {
+		if (this.$upArrow && this.$downArrow) {
+
+			// Find the top/left positions we want to set
+			// We will place arrows in MIDDLE of inputs, and on right hand side
+			var topOfVisibles = this.$activeElement.offset().top;
+			var activeElementIndex = this.$inputs.index(this.$activeElement);
+			var lastVisibleIndex = activeElementIndex + this.visibleInputLength - 1;
+			var $lastVisibleEl = $(this.$inputs.get(lastVisibleIndex));
+			var bottomOfVisibles = $lastVisibleEl.offset().top + $lastVisibleEl.height();
+			
+			var heightOfAllVisibles = bottomOfVisibles - topOfVisibles;
+			var midpointOfAllVisibles = topOfVisibles + (heightOfAllVisibles / 2);
+
+			var upArrowBottom = midpointOfAllVisibles -
+													this.distanceBetweenArrows / 2;
+			this.$upArrow.css('top', upArrowBottom - this.$upArrow.height());
+
+			var downArrowTop = midpointOfAllVisibles +
+												 this.distanceBetweenArrows / 2;
+			this.$downArrow.css('top', downArrowTop);
+
+			// We assume inputs are of equal width
+			var inputRightSide = this.$activeElement.offset().left + 
+													 this.$activeElement.width();
+
+			this.$upArrow.css('left', inputRightSide + this.arrowDistancePastInputs);
+
+			this.$downArrow.css('left', inputRightSide + this.arrowDistancePastInputs);
+		}
+	}
+
+	EndlessInput.prototype.activateArrows = function () {
+		var that = this;
+		this.$upArrow.on('click', function () {
+			if (that.$activeElement.prev()) {
+				that.$activeElement.prev().focus();	
+			}
+		});
+
+		this.$downArrow.on('click', function () {
+			if (that.$activeElement.next()) {
+				that.$activeElement.next().focus();	
+			}
+		});
+	}
+
 	EndlessInput.prototype.init = function () {
 		var that = this;
 
@@ -180,51 +240,9 @@
 
 		// NOTE: Add arrows first, then implement selective showing of arrows
 		// REFACTOR ALL OF THIS!
-		this.$inputs.last().after("<div class='endless-input-arrow-up'>");
-		this.$inputs.last().after("<div class='endless-input-arrow-down'>");
-
-		var secondInputTop = this.$inputs.first().next().position().top;
-		var upArrowTop = $('.endless-input-arrow-up').position().top;
-		var secondInputWidth = this.$inputs.first().next().width();
-		var secondInputHeight = this.$inputs.first().next().height();
-
-		var upArrowMoveBottom = upArrowTop - secondInputTop - secondInputHeight;
-		var upArrowMoveLeft = secondInputWidth + 15;
-
-		$('.endless-input-arrow-up').css({bottom: upArrowMoveBottom, left: upArrowMoveLeft});
-
-		var thirdInputTop = this.$inputs.first().next().next().position().top;
-		var downArrowTop = $('.endless-input-arrow-down').position().top;
-		var thirdInputWidth = this.$inputs.first().next().next().width();
-		var thirdInputHeight = this.$inputs.first().next().next().height();
-
-		var downArrowMoveBottom = downArrowTop - thirdInputTop - 10;
-		var downArrowMoveLeft = thirdInputWidth + 34;
-
-		$('.endless-input-arrow-down').css({bottom: downArrowMoveBottom, left: downArrowMoveLeft});
-
-		var upArrowLeft = $('.endless-input-arrow-up').position().left;
-		var upArrowTop = $('.endless-input-arrow-up').position().top;
-
-		var downArrowLeft = $('.endless-input-arrow-down').position().left;
-		var downArrowTop = $('.endless-input-arrow-down').position().top;
-
-		$('.endless-input-arrow-up').css({position: 'absolute', left: upArrowLeft, top: upArrowTop});
-		$('.endless-input-arrow-down').css({position: 'absolute', left: downArrowLeft, top: downArrowTop});
-
-
-		// NEED TO DO SMART PREV HERE, NOT JUST STUPID PREV
-		$('.endless-input-arrow-up').on('click', function () {
-			if (that.$activeElement.prev()) {
-				that.$activeElement.prev().focus();	
-			}
-		});
-
-		$('.endless-input-arrow-down').on('click', function () {
-			if (that.$activeElement.next()) {
-				that.$activeElement.next().focus();	
-			}
-		});
+		this.generateArrows();
+		this.placeArrows();
+		this.activateArrows();
 	};
 
 
