@@ -159,6 +159,21 @@
 		$('.endless-input-arrow-up').css({position: 'absolute', left: upArrowLeft, top: upArrowTop});
 		$('.endless-input-arrow-down').css({position: 'absolute', left: downArrowLeft, top: downArrowTop});
 
+
+		// NEED TO DO SMART PREV HERE, NOT JUST STUPID PREV
+		$('.endless-input-arrow-up').on('click', function () {
+			if (that.$activeElement.prev()) {
+				that.$activeElement.prev().focus();	
+			}
+		});
+
+		$('.endless-input-arrow-down').on('click', function () {
+			if (that.$activeElement.next()) {
+				that.$activeElement.next().focus();	
+			}
+		});
+
+
 	};
 
 
