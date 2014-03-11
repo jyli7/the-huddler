@@ -48,6 +48,7 @@
 		, this.selector = 'input[data-endless=' + 
 											this.$activeElement.data('endless') +']'
 		, this.blurIncrement = 1 / this.visibleInputLength
+		, this.permanentTop = this.$inputs.first().position().top;
 		;
 
 		if ($(this.$inputs.parent('form'))) {
@@ -61,7 +62,7 @@
 		// HAVING ARROWS IS A CUSTOM OPTION TOO
 	};
 
-	EndlessInput.prototype.resetElements = function () {
+	EndlessInput.prototype.fadeElements = function () {
 		// Reset all elements before active element, if they exist
 		var $previousElements = this.$activeElement.prevAll(this.selector);
 		if ($previousElements) {
@@ -88,47 +89,48 @@
 		$lastVisibleEl.nextAll(this.selector).hide();
 	};
 
-	EndlessInput.prototype.activateInput = function ($newActiveElement) {
-		this.$activeElement = $newActiveElement;
-		this.scrollElements($newActiveElement);
-		this.resetElements($newActiveElement);
-	};
-
 	EndlessInput.prototype.scrollElements = function ($newActiveElement) {
+		// Make sure all inputs have position relative
 		this.$inputs.css('position', 'relative');
 
 		var topOfNewActiveElement = $newActiveElement.position().top;
-		distanceToScroll = topOfNewActiveElement - this.permanentActiveTop;
-		console.log(distanceToScroll);
+		distanceToScroll = topOfNewActiveElement - this.permanentTop;
 
 		this.$inputs.animate({
 			top: "-=" + distanceToScroll
 		}, this.inputsSlideDelay);
 
 		if (this.$submitButton) {
-			var currentTop = this.$submitButton.top
-			this.$submitButton.css('position', 'relative');
-			this.$submitButton.animate({
-				top: "-=" + distanceToScroll
-			}, 0);
+			this.scrollSubmitButton(distanceToScroll);
 		}
-
 	}
+
+	EndlessInput.prototype.setForm = function () {
+		this.$form.css('max-height' , this.$form.height());
+	}
+
+	EndlessInput.prototype.scrollSubmitButton = function (distanceToScroll) {
+		this.$submitButton.css('position', 'relative');
+		this.$submitButton.animate({
+			top: "-=" + distanceToScroll
+		}, 0);
+	}
+
+	EndlessInput.prototype.activateInput = function ($newActiveElement) {
+		this.$activeElement = $newActiveElement;
+		this.scrollElements($newActiveElement);
+		this.fadeElements($newActiveElement);
+	};
 
 	EndlessInput.prototype.init = function () {
 		var that = this;
 
 		this.$inputs.first().focus();
-		this.permanentActiveTop = this.$inputs.first().position().top;
-		this.resetElements();
-
-		// Set form overflow to hidden, fix position of submit button 
+		this.fadeElements();
 		if (this.$form) {
-			this.$form.css({ 'max-height' : this.$form.height()});
+			this.setForm();
 		}
 
-		// Whenever you click into any element, move every element
-		// by the distance between the top element and this element
 		this.$inputs.on('focus', function () {
 			that.activateInput($(this));
 		});
