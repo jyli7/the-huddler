@@ -19,11 +19,20 @@
 		return result;
 	};
 
+	var totallyDeactivate = function ($inputs) {
+		$inputs.animate({
+			opacity: 0,
+		}, this.slideDelay);
+		$inputs.css('z-index', -1000);
+	}
+
 	// CONSTRUCTOR FUNCTIONS
 
 	var EndlessInput = function ($inputs) {
-		this.$inputs = $inputs;
-		this.$activeElement = this.$inputs.first();
+			this.$inputs = $inputs
+		, this.$activeElement = this.$inputs.first()
+		, this.slideDelay = 400
+		;
 	};
 
 	EndlessInput.prototype.reBlurElements = function () {
@@ -39,12 +48,12 @@
 
 		// Refactor this into a specific method that takes in DISTANCE FROM ACTIVE! (-1, 0, 1, 2, etc);
 		// Set all inputs to normal first
-		this.$inputs.css('opacity', normal);
+		// this.$inputs.css('opacity', normal);
 		// this.$inputs.show();
 
 		$elementsFarBefore = this.$activeElement.prevAll()
 		if ($elementsFarBefore) {
-			// $elementsFarBefore.slideUp();
+			totallyDeactivate($elementsFarBefore);
 		}
 
 		// $elementsFarBeyond = this.$activeElement.nextAll()
@@ -74,14 +83,11 @@
 
 		topOfThisElement = $input.position().top;
 		distanceToScroll = topOfThisElement - this.activeElementFixedTop;
-		console.log(this.activeElementFixedTop);
-
-		console.log(this);
 
 		this.$inputs.css('position', 'relative');
 		this.$inputs.animate({
 			top: "-=" + distanceToScroll
-		}, 400);
+		}, this.slideDelay);
 
 		this.$activeElement = $input;
 		this.reBlurElements();
