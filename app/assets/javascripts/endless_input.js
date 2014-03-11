@@ -47,7 +47,7 @@
 											this.$activeElement.data('endless') +']'
 		, this.fadeIncrement = 1 / this.visibleInputLength
 		, this.permanentTop = this.$inputs.first().position().top
-		, this.sectionsHash = {
+		, this.sections = {
 													 'beforeActive' : undefined,
 													 'active' : undefined,
 													 'visible' : undefined,
@@ -65,21 +65,51 @@
 		// HAVING ARROWS IS A CUSTOM OPTION TOO
 	};
 
-	// "Smart" function that does the right thing with the element,
+	// "Smart" function that fades the visible element appropriately,
 	// given distance from active
-	EndlessInput.prototype.fadeElement = function ($el, distanceFromActive) {
+	EndlessInput.prototype.fadeVisibleElement = function ($el, distanceFromActive) {
 		$el.show();
 		$el.css('opacity', 1 - this.fadeIncrement * distanceFromActive);
 	}
 
 	EndlessInput.prototype.fadeOrHideSections = function () {
-		
+		var $beforeActive
+			, $active
+			, $visible
+			, $afterVisible
+			, activeElementIndex
+			, firstVisibleElIndex
+			, i
+			;
+
+		$beforeActive = this.sections['beforeActive'];
+		$active = this.sections['active'];
+		$visible = this.sections['visible'];
+		$afterVisible = this.sections['afterVisible'];
+
+
+		if ($beforeActive && $beforeActive.length) {
+			customHide($beforeActive);
+		}
+
+		customShow($active);
+
+		if ($visible && $visible.length) {
+			activeElementIndex = this.$inputs.index(this.$activeElement);
+			firstVisibleElIndex = activeElementIndex + 1;
+			lastVisibleIndex = activeElementIndex + this.visibleInputLength - 1;
+			for (i = firstVisibleElIndex; i <= lastVisibleIndex; i++) {
+				this.fadeVisibleElement($(this.$inputs.get(i)), i - activeElementIndex);
+			}
+		}
+
+		if ($afterVisible && $afterVisible.length) {
+			$afterVisible.hide();
+		} 
 	}
 
 	EndlessInput.prototype.fadeOrHideElements = function () {
-		var $previousElements
-			, activeElementIndex
-			, i
+		var activeElementIndex
 			, lastVisibleIndex
 			, $lastVisibleEl
 			, that
@@ -87,45 +117,22 @@
 
 		that = this;
 
-		// Reset all visible elements after active element
-		var activeElementIndex = this.$inputs.index(this.$activeElement);
-		for (var i = activeElementIndex + 1;
-				 i < activeElementIndex + this.visibleInputLength; i++) {
-
-			this.fadeElement($(this.$inputs.get(i)), i - $activeElementIndex)
-		}
-
-
-		// Reset all elements AFTER all visible ones
-		
-		
-
-
-		// Set sections
-		sectionsHash['beforeActive'] = this.$activeElement.prevAll(this.selector);
-		sectionsHash['active'] = this.$activeElement;
+		// 1) Set sections
+		this.sections['beforeActive'] = this.$activeElement.prevAll(this.selector);
+		this.sections['active'] = this.$activeElement;
 
 		activeElementIndex = this.$inputs.index(this.$activeElement);
-		sectionsHash['visible'] = this.$inputs
+		this.sections['visible'] = this.$inputs
 																  .slice(activeElementIndex,
 																				 activeElementIndex
 																				 + this.visibleInputLength);
 
 		lastVisibleIndex = activeElementIndex + this.visibleInputLength - 1;
 		$lastVisibleEl = $(this.$inputs.get(lastVisibleIndex));
-		sectionsHash['afterVisible'] = $lastVisibleEl.nextAll(this.selector);
+		this.sections['afterVisible'] = $lastVisibleEl.nextAll(this.selector);
 
-		// Fade or hide sections
+		// 2) Fade or hide secetions
 		this.fadeOrHideSections();
-
-		// Reset all elements before active element, if they exist
-		var $previousElements = 
-		if ($previousElements) {
-			customHide($previousElements);
-		}
-		
-		// Reset active element
-		customShow(this.$activeElement);
 	};
 
 	EndlessInput.prototype.scrollElements = function ($newActiveElement) {
