@@ -88,17 +88,18 @@
 		$lastVisibleEl.nextAll(this.selector).hide();
 	};
 
-	EndlessInput.prototype.activateInput = function ($input) {
-		var distanceToScroll
-			, topOfActiveElement
-			, topOfThisElement
-			;
+	EndlessInput.prototype.activateInput = function ($newActiveElement) {
+		this.$activeElement = $newActiveElement;
+		this.scrollElements($newActiveElement);
+		this.resetElements($newActiveElement);
+	};
 
+	EndlessInput.prototype.scrollElements = function ($newActiveElement) {
 		this.$inputs.css('position', 'relative');
 
-
-		topOfThisElement = $input.position().top;
-		distanceToScroll = topOfThisElement - this.activeElementFixedTop;
+		var topOfNewActiveElement = $newActiveElement.position().top;
+		distanceToScroll = topOfNewActiveElement - this.permanentActiveTop;
+		console.log(distanceToScroll);
 
 		this.$inputs.animate({
 			top: "-=" + distanceToScroll
@@ -112,28 +113,19 @@
 			}, 0);
 		}
 
-		this.$activeElement = $input;
-		this.resetElements();
-	};
+	}
 
 	EndlessInput.prototype.init = function () {
 		var that = this;
 
-		// Highlight first element
 		this.$inputs.first().focus();
-		this.activeElementFixedTop = this.$inputs.first().position().top;
-
+		this.permanentActiveTop = this.$inputs.first().position().top;
 		this.resetElements();
 
 		// Set form overflow to hidden, fix position of submit button 
 		if (this.$form) {
 			this.$form.css({ 'max-height' : this.$form.height()});
 		}
-
-		
-
-
-
 
 		// Whenever you click into any element, move every element
 		// by the distance between the top element and this element
