@@ -69,23 +69,23 @@
 			customHide($elementRightBeforeActive);
 		}
 
-		$elementRightAfterActive = this.$activeElement.next();
+		$elementRightAfterActive = this.$activeElement.next(selectorForTrueSiblings);
 		if ($elementRightAfterActive) {
 			$elementRightAfterActive.css('opacity', minorBlur);
 		}
 
-		$elementRightAfterActive = this.$activeElement.next().next();
+		$elementRightAfterActive = this.$activeElement.next(selectorForTrueSiblings).next(selectorForTrueSiblings);
 		if ($elementRightAfterActive) {
 			$elementRightAfterActive.css('opacity', mediumBlur);
 		}
 
-		$elementRightAfterActive = this.$activeElement.next().next().next();
+		$elementRightAfterActive = this.$activeElement.next(selectorForTrueSiblings).next(selectorForTrueSiblings).next(selectorForTrueSiblings);
 		if ($elementRightAfterActive) {
 			$elementRightAfterActive.show();
 			$elementRightAfterActive.css('opacity', majorBlur);
 		}
 
-		$elementsFarBeyond = this.$activeElement.next().next().next().nextAll();
+		$elementsFarBeyond = this.$activeElement.next(selectorForTrueSiblings).next(selectorForTrueSiblings).next(selectorForTrueSiblings).nextAll(selectorForTrueSiblings);
 		if ($elementsFarBeyond) {
 			$elementsFarBeyond.hide();
 		}
@@ -126,6 +126,7 @@
 		});
 
 		// NOTE: Add arrows first, then implement selective showing of arrows
+		// REFACTOR ALL OF THIS!
 		this.$inputs.last().after("<div class='endless-input-arrow-up'>");
 		this.$inputs.last().after("<div class='endless-input-arrow-down'>");
 
@@ -149,7 +150,14 @@
 
 		$('.endless-input-arrow-down').css({bottom: downArrowMoveBottom, left: downArrowMoveLeft});
 
+		var upArrowLeft = $('.endless-input-arrow-up').position().left;
+		var upArrowTop = $('.endless-input-arrow-up').position().top;
 
+		var downArrowLeft = $('.endless-input-arrow-down').position().left;
+		var downArrowTop = $('.endless-input-arrow-down').position().top;
+
+		$('.endless-input-arrow-up').css({position: 'absolute', left: upArrowLeft, top: upArrowTop});
+		$('.endless-input-arrow-down').css({position: 'absolute', left: downArrowLeft, top: downArrowTop});
 
 	};
 
