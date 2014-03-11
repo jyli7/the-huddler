@@ -124,6 +124,33 @@
 		this.$inputs.on('focus', function () {
 			that.activateInput($(this));
 		});
+
+		// NOTE: Add arrows first, then implement selective showing of arrows
+		this.$inputs.last().after("<div class='endless-input-arrow-up'>");
+		this.$inputs.last().after("<div class='endless-input-arrow-down'>");
+
+		var secondInputTop = this.$inputs.first().next().position().top;
+		var upArrowTop = $('.endless-input-arrow-up').position().top;
+		var secondInputWidth = this.$inputs.first().next().width();
+		var secondInputHeight = this.$inputs.first().next().height();
+
+		var upArrowMoveBottom = upArrowTop - secondInputTop - secondInputHeight;
+		var upArrowMoveLeft = secondInputWidth + 15;
+
+		$('.endless-input-arrow-up').css({bottom: upArrowMoveBottom, left: upArrowMoveLeft});
+
+		var thirdInputTop = this.$inputs.first().next().next().position().top;
+		var downArrowTop = $('.endless-input-arrow-down').position().top;
+		var thirdInputWidth = this.$inputs.first().next().next().width();
+		var thirdInputHeight = this.$inputs.first().next().next().height();
+
+		var downArrowMoveBottom = downArrowTop - thirdInputTop - 10;
+		var downArrowMoveLeft = thirdInputWidth + 34;
+
+		$('.endless-input-arrow-down').css({bottom: downArrowMoveBottom, left: downArrowMoveLeft});
+
+
+
 	};
 
 

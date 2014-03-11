@@ -3,6 +3,31 @@
 	z-index: -9999;
 }
 
+input[type="text"].restaurant-input {
+	width: 50%;
+}
+
+.endless-input-arrow-up {
+	width: 0; 
+	height: 0; 
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-bottom: 10px solid black;
+	display: inline-block;
+	position: relative;
+}
+
+.endless-input-arrow-down {
+	width: 0; 
+	height: 0; 
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-top: 10px solid black;
+	display: inline-block;
+	position: relative;
+}
+
+////////////
 .inline-label {
 	display: inline-block;
 	margin: 0px 5px;
