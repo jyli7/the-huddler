@@ -40,17 +40,11 @@
 		// Refactor this into a specific method that takes in DISTANCE FROM ACTIVE! (-1, 0, 1, 2, etc);
 		// Set all inputs to normal first
 		this.$inputs.css('opacity', normal);
-		this.$inputs.show();
+		// this.$inputs.show();
 
 		$elementsFarBefore = this.$activeElement.prevAll()
 		if ($elementsFarBefore) {
-			$elementsFarBefore.hide();
-		}
-
-		$elementRightBeforeActive = this.$activeElement.prev();
-		if ($elementRightBeforeActive) {
-			$elementRightBeforeActive.show();
-			$elementRightBeforeActive.css('opacity', majorBlur);
+			// $elementsFarBefore.slideUp();
 		}
 
 		// $elementsFarBeyond = this.$activeElement.nextAll()
@@ -79,8 +73,10 @@
 			;
 
 		topOfThisElement = $input.position().top;
-		topOfActiveElement = this.$activeElement.position().top;
-		distanceToScroll = topOfThisElement - topOfActiveElement;
+		distanceToScroll = topOfThisElement - this.activeElementFixedTop;
+		console.log(this.activeElementFixedTop);
+
+		console.log(this);
 
 		this.$inputs.css('position', 'relative');
 		this.$inputs.animate({
@@ -93,8 +89,10 @@
 
 	EndlessInput.prototype.init = function () {
 		var that = this;
+
 		// Highlight first element
 		this.$inputs.first().focus();
+		this.activeElementFixedTop = this.$inputs.first().position().top;
 
 		// Whenever you click into any element, move every element
 		// by the distance between the top element and this element
